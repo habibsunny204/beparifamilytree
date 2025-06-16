@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>বেপারি বংশের গৌরবগাথা - আধুনিক পারিবারিক বৃক্ষ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#3b82f6',
+                        accent: '#f59e0b',
+                        light: '#f0f4f8',
+                        dark: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+            color: #1e293b;
+            min-height: 100vh;
+        }
+
+        .tree-container {
+            width: 100%;
+            height: 70vh;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            background: white;
+            position: relative;
+        }
+
+        .tree-wrapper {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            padding: 2rem;
+            transition: transform 0.2s ease;
+        }
+
+        .family-tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: max-content;
+            min-height: max-content;
+            position: relative;
+        }
+
+        .tree ul {
+            padding-top: 30px;
+            position: relative;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: center;
+        }
+
+        .tree li {
+            text-align: center;
+            list-style-type: none;
+            position: relative;
+            padding: 30px 8px 0 8px;
+            transition: all 0.3s;
+        }
+
+        .tree li::before, .tree li::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 50%;
+            border-top: 2px solid #3b82f6;
+            width: 50%;
+            height: 30px;
+        }
+
+        .tree li::after {
+            right: auto;
+            left: 50%;
+            border-left: 2px solid #3b82f6;
+        }
+
+        .tree li:only-child::after, .tree li:only-child::before {
+            display: none;
+        }
+
+        .tree li:only-child {
+            padding-top: 0;
+        }
+
+        .tree li:first-child::before, .tree li:last-child::after {
+            border: 0 none;
+        }
+
+        .tree li:last-child::before {
+            border-right: 2px solid #3b82f6;
+            border-radius: 0 5px 0 0;
+        }
+
+        .tree li:first-child::after {
+            border-radius: 5px 0 0 0;
+        }
+
+        .tree ul ul::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            border-left: 2px solid #3b82f6;
+            width: 0;
+            height: 30px;
+        }
+
+        .tree li .member {
+            border: 2px solid #3b82f6;
+            padding: 12px 16px;
+            text-decoration: none;
+            background: linear-gradient(to bottom, #ffffff, #f8fafc);
+            color: #1e293b;
+            display: inline-block;
+            border-radius: 10px;
+            min-width: 160px;
+            position: relative;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(30, 64, 175, 0.1);
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        .tree li .member:hover {
+            background: linear-gradient(to bottom, #eff6ff, #dbeafe);
+            color: #1e40af;
+            border-color: #2563eb;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(30, 64, 175, 0.15);
+        }
+
+        .tree li .member .name {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 4px;
+        }
+
+        .tree li .member .details {
+            font-size: 0.85rem;
+            color: #475569;
+            font-style: italic;
+        }
+
+        .toggle {
+            cursor: pointer;
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px solid white;
+            z-index: 20;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+
+        .toggle:hover {
+            background-color: #2563eb;
+            transform: translateX(-50%) scale(1.1);
+        }
+        
+        .collapsed > ul {
+            display: none;
+        }
+
+        .toggle::after {
+            content: '−';
+        }
+        
+        .collapsed > .member > .toggle::after {
+            content: '+';
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(30, 64, 175, 0.1);
+        }
+
+        .control-btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(30, 64, 175, 0.15);
+        }
+
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 20px;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border-radius: 50px;
+            border: 2px solid #cbd5e1;
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .search-container input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.2rem;
+        }
+
+        .highlight {
+            animation: highlight 1.5s ease;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.5);
+        }
+
+        @keyframes highlight {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        .generation-indicator {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #f59e0b;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .tree-container {
+                height: 60vh;
+            }
+            
+            .tree li {
+                padding: 20px 5px 0 5px;
+            }
+            
+            .tree li .member {
+                min-width: 130px;
+                padding: 8px 12px;
+            }
+            
+            .controls {
+                gap: 8px;
+            }
+            
+            .control-btn {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Header Section -->
+    <header class="bg-white shadow-md py-6 px-4 text-center">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-bold text-primary">
+                <span class="inline-block transform rotate-12">🔰</span> 
+                বেপারি বংশের গৌরবগাথা 
+                <span class="inline-block transform -rotate-12">🔰</span>
+            </h1>
+            <div class="w-24 h-1 bg-accent mx-auto my-4 rounded-full"></div>
+            <p class="mt-4 max-w-4xl mx-auto text-gray-700">
+                🧬 শতাব্দীর পর শতাব্দী ধরে ‍বহমান এক মহিমান্বিত ঐতিহ্য— বেপারি বংশ শুধু একটি নাম নয়, এটি এক ঐতিহাসিক গৌরবের ধারক ও বাহক। পাক-ভারতীয় উপ-মহাদেশীয় অঞ্চল আসাম থেকে আসা ভুতা-কলেন্দী-মাদারীর হাত ধরে যে বংশধারার সূচনা, তা আজ অসংখ্য শাখায় বিস্তৃত হয়ে বাংলাদেশের সাংস্কৃতিক, ধর্মীয়, শিক্ষাগত ও সামাজিক অগ্রগতিতে রেখেছে এক অবিস্মরণীয় ছাপ।
+            </p>
+            <p class="mt-4 text-xl font-semibold text-primary bg-blue-50 inline-block px-4 py-2 rounded-lg">
+                📜 "আমি বেপারি বংশের সন্তান, আমি গৌরবের উত্তরাধিকারী।"
+            </p>
+            <div class="mt-4 text-lg font-medium text-gray-600 max-w-3xl mx-auto">
+                <p class="flex items-center justify-center gap-2"><i class="fas fa-star text-accent"></i> ঐতিহ্যই আমাদের পরিচয়, ঐক্যই আমাদের শক্তি।</p>
+                <p class="mt-2">আসুন, আমরা সবাই মিলেমিশে এই গৌরবগাঁথাকে বুকে লালন করি ও ভবিষ্যৎ প্রজন্মকে তা তুলে দিই।</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Controls and Search -->
+    <section class="py-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" placeholder="সদস্য খুঁজুন...">
+            </div>
+            
+            <div class="controls">
+                <button class="control-btn" id="zoomIn">
+                    <i class="fas fa-search-plus"></i> জুম ইন
+                </button>
+                <button class="control-btn" id="zoomOut">
+                    <i class="fas fa-search-minus"></i> জুম আউট
+                </button>
+                <button class="control-btn" id="resetZoom">
+                    <i class="fas fa-expand-arrows-alt"></i> রিসেট জুম
+                </button>
+                <button class="control-btn bg-accent hover:bg-amber-600" id="expandAll">
+                    <i class="fas fa-plus-circle"></i> সব খুলুন
+                </button>
+                <button class="control-btn bg-accent hover:bg-amber-600" id="collapseAll">
+                    <i class="fas fa-minus-circle"></i> সব বন্ধ করুন
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Family Tree Section -->
+    <main class="flex-grow py-6 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="tree-container">
+                <div class="tree-wrapper" id="treeWrapper">
+                    <div class="tree">
+                        <ul>
+                            <li>
+                                <div class="member">
+                                    <div class="name">ভুতা</div>
+                                    <div class="details">বংশের প্রতিষ্ঠাতা</div>
+                                </div>
+                                <ul>
+                                    <li><div class="member">
+                                        <div class="name">সুলেন্দী</div>
+                                        <div class="details">দেওয়ানগঞ্জ মেরুরচর</div>
+                                    </div></li>
+                                    <li>
+                                        <div class="member">
+                                            <div class="name">কলেন্দী</div>
+                                        </div>
+                                        <ul>
+                                            <li>
+                                                <div class="member">
+                                                    <div class="name">মাদরী</div>
+                                                </div>
+                                                <ul>
+                                                    <li>
+                                                        <div class="member">
+                                                            <div class="name">গুতু</div>
+                                                        </div>
+                                                        <ul>
+                                                            <li>
+                                                                <div class="member">
+                                                                    <div class="name">কছর</div>
+                                                                </div>
+                                                                <ul>
+                                                                    <li>
+                                                                        <div class="member">
+                                                                            <div class="name">আজিতুল্লাহ</div>
+                                                                        </div>
+                                                                        <ul>
+                                                                            <li>
+                                                                                <div class="member">
+                                                                                    <div class="name">আব্দুল গনি বেপারি</div>
+                                                                                </div>
+                                                                                <ul>
+                                                                                    <li><div class="member">হায়দর বেপারি</div></li>
+                                                                                    <li><div class="member">মুনতাজ বেপারি</div></li>
+                                                                                    <li><div class="member">মোছা বেপারি</div></li>
+                                                                                    <li><div class="member">জহুরুল বেপারি</div></li>
+                                                                                    <li><div class="member">মুকুল বেপারি</div></li>
+                                                                                </ul>
+                                                                            </li>
+                                                                        </ul>
+                                                                    </li>
+                                                                    <li>
+                                                                        <div class="member">
+                                                                            <div class="name">নজর মাহমুদ</div>
+                                                                        </div>
+                                                                        <ul>
+                                                                            <li><div class="member">নামদার <br><small>(→ হাজী আবু তাহের, গদাই)</small></div></li>
+                                                                            <li><div class="member">আব্দুর নূর <br><small>(→ ডাক্তার এনামুল হক)</small></div></li>
+                                                                            <li><div class="member">হুরমুজ আলী <br><small>(→ চান, সোজা)</small></div></li>
+                                                                            <li><div class="member">ইদু <br><small>(→ জিয়াউল, ঠান্ডা)</small></div></li>
+                                                                            <li><div class="member">ছেংগার <br><small>(→ হানি)</small></div></li>
+                                                                            <li><div class="member">মোহাম্মদ কান্ঠু <br><small>(→ বাবুল আক্তার, রফিকুল বকুল, শফিকুল ইসলাম)</small></div></li>
+                                                                            <li><div class="member">সুরুজ আলী <br><small>(→ ফজলুল হক)</small></div></li>
+                                                                            <li><div class="member">নিলা মদ্দিন <br><small>(→ লেবু, সেজু, ইজহারুল ইসলাম)</small></div></li>
+                                                                        </ul>
+                                                                    </li>
+                                                                    <li>
+                                                                        <div class="member">
+                                                                            <div class="name">মনছের</div>
+                                                                        </div>
+                                                                        <ul>
+                                                                            <li><div class="member">নুরুল হক <br><small>(→ আলমাছ বেপারি, দেলু, ভট্টু)</small></div></li>
+                                                                            <li><div class="member">ছামছল হক <br><small>(→ রফিক, কবির হোসেন, সেলিম)</small></div></li>
+                                                                        </ul>
+                                                                    </li>
+                                                                    <li>
+                                                                        <div class="member">
+                                                                            <div class="name">নইমুদ্দিন</div>
+                                                                        </div>
+                                                                        <ul>
+                                                                            <li><div class="member">আমজাদ আলী <br><small>(→ তিন মেয়ে)</small></div></li>
+                                                                            <li><div class="member">খুরশেদ আলী <br><small>(→ দুলাল, বেলাল, জালাল, কালু, মুখলেছ, হাসু)</small></div></li>
+                                                                        </ul>
+                                                                    </li>
+                                                                    <li><div class="member">সমসের <br><small>(→ এক মেয়ে)</small></div></li>
+                                                                    <li>
+                                                                        <div class="member">
+                                                                            <div class="name">মুসলিম</div>
+                                                                        </div>
+                                                                        <ul>
+                                                                            <li><div class="member">মোহাম্মদ আলী <br><small>(→ আশিকুর রহমান রাসেল)</small></div></li>
+                                                                        </ul>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                            <li>
+                                                                <div class="member">
+                                                                    <div class="name">তাহার</div>
+                                                                </div>
+                                                                <ul>
+                                                                    <li>
+                                                                        <div class="member">
+                                                                            <div class="name">মাহেজ</div>
+                                                                        </div>
+                                                                        <ul>
+                                                                            <li><div class="member">আনসার উদ্দিন <br><small>(→ মতিউর, সদাগর, এলেন)</small></div></li>
+                                                                            <li><div class="member">কাসেম উদ্দিন <br><small>(→ সরকার আলী, মাস্টার আলী, বাবুল)</small></div></li>
+                                                                            <li><div class="member">সাম <br><small>(→ শরিফ উদ্দিন, নদ, লিটন, রিপন)</small></div></li>
+                                                                        </ul>
+                                                                    </li>
+                                                                    <li>
+                                                                        <div class="member">
+                                                                            <div class="name">মকবুল</div>
+                                                                        </div>
+                                                                        <ul>
+                                                                            <li><div class="member">আব্দুল হকিম <br><small>(→ আমিনুল, জাহাঙ্গীর, সুলতান, কামরুল)</small></div></li>
+                                                                            <li><div class="member">আব্দুল কায়ুম <br><small>(→ হাবিবুর, সফিকুল)</small></div></li>
+                                                                            <li><div class="member">আব্দুল হক <br><small>(→ হাবিজুর, সাহিন, মমিন, মাহাবুর)</small></div></li>
+                                                                            <li><div class="member">আশাবালি <br><small>(→ জহুরুল)</small></div></li>
+                                                                            <li><div class="member">রজবালি <br><small>(→ রুকন, ফারুক)</small></div></li>
+                                                                        </ul>
+                                                                    </li>
+                                                                    <li>
+                                                                        <div class="member">
+                                                                            <div class="name">আব্দুর সামাদ (ছামাদ)</div>
+                                                                        </div>
+                                                                        <ul>
+                                                                            <li><div class="member">আব্দুল হাই <br><small>(→ মস্তুফা, মুশারফ, মিজান, মাইনুল)</small></div></li>
+                                                                            <li><div class="member">ফজল <br><small>(→ সোহেল, সজিব)</small></div></li>
+                                                                            <li><div class="member">ফটিক <br><small>(→ মাসুদ, মারুফ, মামুন)</small></div></li>
+                                                                        </ul>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><div class="member">আমের <br><small>(মালমারা; আব্দুল হক কেরানীর পূর্ব বংশধর)</small></div></li>
+                                                        </ul>
+                                                    </li>
+                                                    <li>
+                                                        <div class="member">
+                                                            <div class="name">শুড়ু</div>
+                                                        </div>
+                                                        <ul>
+                                                            <li>
+                                                                <div class="member">
+                                                                    <div class="name">জেহার</div>
+                                                                </div>
+                                                                <ul>
+                                                                    <li>
+                                                                      <div class="member">আইনুউদ্দিন</div>
+                                                                      <ul>
+                                                                          <li><div class="member">আব্দুর রহিম <br><small>(→ মোহাদ্দেস, দুলাল, মঞ্জুর, মোশাররফ, নূরনবী, নূর রহমান)</small></div></li>
+                                                                          <li><div class="member">আফসার উদ্দিন <br><small>(→ মোছা, মোজাম্মেল, জিয়াউল)</small></div></li>
+                                                                      </ul>
+                                                                    </li>
+                                                                    <li>
+                                                                        <div class="member">জয়নুউদ্দিন</div>
+                                                                        <ul>
+                                                                            <li><div class="member">আব্দুল খালেক <br><small>(→ ফরহাদ, কাদের, হক, মোবারক)</small></div></li>
+                                                                            <li><div class="member">নুরুল হক <br><small>(→ সফিকুল, রাজ্জাক, এবাদুল, ছানোয়ার, ইব্রাহিম, সামিম)</small></div></li>
+                                                                        </ul>
+                                                                    </li>
+                                                                    <li>
+                                                                        <div class="member">আব্দুর ছাত্তার</div>
+                                                                        <ul>
+                                                                            <li><div class="member">গিয়েস <br><small>(→ ফজলুল, ইদ্দিস, সিদ্দিক)</small></div></li>
+                                                                            <li><div class="member">সিরাজল <br><small>(সন্তানহীন)</small></div></li>
+                                                                            <li><div class="member">সুরত <br><small>(→ কামাল, রাশেদ, লিটন, পারুল)</small></div></li>
+                                                                        </ul>
+                                                                    </li>
+                                                                    <li>
+                                                                        <div class="member">আব্দুল বারেক</div>
+                                                                        <ul>
+                                                                            <li><div class="member">আবু সাইদ <br><small>(→ শহিদুল্লাহ, আসাদুল্লাহ, মামুন, মাহাবুব)</small></div></li>
+                                                                        </ul>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                            <li>
+                                                                <div class="member">মেহের</div>
+                                                                <ul>
+                                                                    <li>
+                                                                        <div class="member">মিঠু</div>
+                                                                        <ul>
+                                                                            <li><div class="member">আব্দুল করিম <br><small>(→ বাবুল, হাবিজুর, সামিদুল)</small></div></li>
+                                                                            <li><div class="member">আব্দুল আওয়াল <br><small>(সন্তানহীন)</small></div></li>
+                                                                        </ul>
+                                                                    </li>
+                                                                    <li>
+                                                                        <div class="member">ইজু</div>
+                                                                        <ul>
+                                                                            <li><div class="member">আব্দুর রশিদ <br><small>(→ রাইহান, মতিজল)</small></div></li>
+                                                                            <li><div class="member">আব্দুল মান্নান <br><small>(→ আজিজুর, লুৎফর, মোখলেসুর, নজরুল)</small></div></li>
+                                                                        </ul>
+                                                                    </li>
+                                                                    <li>
+                                                                        <div class="member">ইসাবদ্দি</div>
+                                                                        <ul>
+                                                                            <li><div class="member">নুরুল ইসলাম <br><small>(→ ইমেন, জলহক, ছাইদুর, এরফান)</small></div></li>
+                                                                        </ul>
+                                                                    </li>
+                                                                    <li>
+                                                                        <div class="member">মহুস</div>
+                                                                        <ul>
+                                                                            <li><div class="member">ওয়াজ আলী <br><small>(→ জামাল হোসেন, আকারাম হোসেন)</small></div></li>
+                                                                            <li><div class="member">মোস্তাফিজুর রহমান <br><small>(→ আসাদুজ্জামান, রফিকুল, শফিকুল, আবুল হাসেম, মাহমুদুল হাসান)</small></div></li>
+                                                                            <li><div class="member">আব্দুল মোতেলেব <br><small>(→ খুদু, মজনু, মজিদ, রতন)</small></div></li>
+                                                                        </ul>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Information Panel -->
+    <section class="py-6 px-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <h3 class="text-xl font-bold text-primary mb-3 flex items-center gap-2">
+                    <i class="fas fa-info-circle"></i> গাছ সম্পর্কে তথ্য
+                </h3>
+                <ul class="space-y-2">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-user text-accent mt-1"></i>
+                        <span>সর্বমোট সদস্য: <strong>120+</strong></span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-sitemap text-accent mt-1"></i>
+                        <span>প্রজন্ম: <strong>10+</strong></span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-map-marker-alt text-accent mt-1"></i>
+                        <span>মূল ভূখণ্ড: <strong>আসাম, ভারত</strong></span>
+                    </li>
+                </ul>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <h3 class="text-xl font-bold text-primary mb-3 flex items-center gap-2">
+                    <i class="fas fa-lightbulb"></i> ব্যবহারের টিপস
+                </h3>
+                <ul class="space-y-2">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-search text-accent mt-1"></i>
+                        <span>সদস্য খুঁজতে উপরের সার্চ বক্স ব্যবহার করুন</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-expand text-accent mt-1"></i>
+                        <span>জুম করতে জুম ইন/আউট বাটন ব্যবহার করুন</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-plus-circle text-accent mt-1"></i>
+                        <span>শাখা প্রসারিত করতে নামের নিচের (+) আইকনে ক্লিক করুন</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="bg-white shadow-inner py-6 px-4 text-center text-gray-600">
+        <div class="max-w-6xl mx-auto">
+            <p>বেপারি পরিবারীয় গঠনতন্ত্রের আলোকে গৃহীত বার্তা।</p>
+            <div class="mt-4 flex flex-wrap justify-center gap-6">
+                <div>
+                    <p class="font-semibold">সোর্স:</p>
+                    <p>রফিকুল ইসলাম বকুল</p>
+                </div>
+                <div>
+                    <p class="font-semibold">কালেকশন:</p>
+                    <p>রনি, জুয়েল, সানি</p>
+                </div>
+            </div>
+            <div class="mt-6 pt-4 border-t border-gray-200">
+                <p>© 2023 বেপারি বংশের গৌরবগাথা | সর্বস্বত্ব সংরক্ষিত</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const parents = document.querySelectorAll('.tree li:has(ul)');
+            const treeWrapper = document.getElementById('treeWrapper');
+            const zoomInBtn = document.getElementById('zoomIn');
+            const zoomOutBtn = document.getElementById('zoomOut');
+            const resetZoomBtn = document.getElementById('resetZoom');
+            const expandAllBtn = document.getElementById('expandAll');
+            const collapseAllBtn = document.getElementById('collapseAll');
+            const searchInput = document.getElementById('searchInput');
+            
+            let scale = 1;
+            const minScale = 0.5;
+            const maxScale = 2;
+            const scaleStep = 0.1;
+
+            // Add toggle buttons and collapse deep nodes
+            parents.forEach(parent => {
+                const memberDiv = parent.querySelector(':scope > .member');
+                if (memberDiv) {
+                    const toggle = document.createElement('div');
+                    toggle.className = 'toggle';
+                    memberDiv.appendChild(toggle);
+                    
+                    toggle.addEventListener('click', function (event) {
+                        event.stopPropagation(); 
+                        parent.classList.toggle('collapsed');
+                    });
+
+                    // Initially collapse deep nodes
+                    if (getDepth(parent) > 3) {
+                       parent.classList.add('collapsed');
+                    }
+                }
+            });
+
+            // Helper function to determine node depth
+            function getDepth(element) {
+                let depth = 0;
+                let el = element;
+                while(el.parentElement && el.parentElement.closest('ul')) {
+                    if (el.parentElement.tagName === 'UL') {
+                        depth++;
+                    }
+                    el = el.parentElement;
+                }
+                return depth;
+            }
+
+            // Zoom functionality
+            function applyZoom() {
+                treeWrapper.style.transform = `scale(${scale})`;
+                treeWrapper.style.transformOrigin = 'top left';
+            }
+
+            zoomInBtn.addEventListener('click', () => {
+                if (scale < maxScale) {
+                    scale += scaleStep;
+                    applyZoom();
+                }
+            });
+
+            zoomOutBtn.addEventListener('click', () => {
+                if (scale > minScale) {
+                    scale -= scaleStep;
+                    applyZoom();
+                }
+            });
+
+            resetZoomBtn.addEventListener('click', () => {
+                scale = 1;
+                applyZoom();
+            });
+
+            // Expand/Collapse all functionality
+            expandAllBtn.addEventListener('click', () => {
+                parents.forEach(parent => {
+                    parent.classList.remove('collapsed');
+                });
+            });
+
+            collapseAllBtn.addEventListener('click', () => {
+                parents.forEach(parent => {
+                    if (getDepth(parent) > 2) {
+                        parent.classList.add('collapsed');
+                    }
+                });
+            });
+
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const members = document.querySelectorAll('.member');
+                
+                members.forEach(member => {
+                    const text = member.textContent.toLowerCase();
+                    if (searchTerm && text.includes(searchTerm)) {
+                        member.classList.add('highlight');
+                        
+                        // Scroll to and expand the member
+                        member.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // Expand all parents
+                        let parentLi = member.closest('li');
+                        while (parentLi) {
+                            parentLi.classList.remove('collapsed');
+                            parentLi = parentLi.parentElement.closest('li');
+                        }
+                    } else {
+                        member.classList.remove('highlight');
+                    }
+                });
+            });
+
+            // Highlight member on click
+            document.querySelectorAll('.member').forEach(member => {
+                member.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('toggle')) return;
+                    
+                    // Remove previous highlights
+                    document.querySelectorAll('.member').forEach(m => {
+                        m.classList.remove('highlight');
+                    });
+                    
+                    // Highlight clicked member
+                    this.classList.add('highlight');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
